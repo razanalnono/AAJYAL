@@ -52,6 +52,39 @@ class AccessTokensController extends Controller
     }
 
 
+    public function changePassword(Request $request, $type)
+    {
+
+        $password =   $request->password;
+        $email = $request->email;
+
+        if ($type == 'trainee') {
+            $user = Trainee::where('email', $email)->first();
+        } elseif ($type == 'trainer') {
+            $user = Trainer::where('email', $email)->first();
+        } else {
+            $user = Admin::where('email', $email)->first();
+        }
+
+        if ($user && (Hash::check($request->old_password, $user->password))) {
+            $token = $user->createToken($request->userAgent())->plainTextToken;
+            $user->update([
+
+                'password' => Hash::make($request->password),
+
+            ]);
+            return Response::json([
+                'message' => 'Authenticated',
+                'token' => $token,
+            ], 201);
+        }
+
+
+        return Response::json([
+            'message' => 'Invalid Login Credentials'
+        ], 401);
+    }
+
     // public function verify(Request $request){
 
     // $acode=$request->activation_code;

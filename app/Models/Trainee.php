@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Notifications\Notifiable;
 
 class Trainee extends User
 {
-    use HasFactory, HasApiTokens;
+    use HasFactory, HasApiTokens,Notifiable;
     protected $fillable = [
         'firstName', 'lastName',
         'national_id', 'gender',
@@ -36,7 +37,7 @@ class Trainee extends User
             'lastName' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', "unique:trainees,email,$id"],
             'national_id' => ['required', 'string', "unique:trainees,national_id,$id"],
-            'gender' => ['required', 'in:أنثى,ذكر'],
+            'gender' => ['required', 'in:female,male'],
             'mobile' => ['required', 'string', 'max:255', "unique:trainees,mobile,$id"],
             'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,svg'],
             'groups' => ['required'],

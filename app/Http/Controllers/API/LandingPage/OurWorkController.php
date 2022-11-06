@@ -39,6 +39,17 @@ class OurWorkController extends Controller
         $data =  $request->except('images');
         $work = OurWork::create($data);
 
+        if (!$request->images) {
+            $request->offsetSet('images', []);
+        }
+
+        if (!is_array($request->images)) {
+            if (is_array(json_decode($request->images))) {
+                $request->offsetSet('images', json_decode($request->images));
+            } else {
+                $request->offsetSet('images', []);
+            }
+        }
         
         foreach ($request->images as $image) {
          // $data=[];

@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::table('admins', function (Blueprint $table) {
             //
-            $table->string('token');
+            $table->string('token')->nullable();
 
         });
     }

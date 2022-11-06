@@ -42,7 +42,8 @@ class TrainerController extends Controller
         Mail::to($trainer->email)->send(new Password($password));
 
         return response()->json([
-            'message' => 'Trainer Created'
+            'message' => 'Trainer Created',
+            'Trainer'=>$trainer,
         ]);
     }
 

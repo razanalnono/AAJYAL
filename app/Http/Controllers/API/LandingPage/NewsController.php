@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Api\LandingPage;
+namespace App\Http\Controllers\API\LandingPage;
 
 use App\Http\Controllers\Controller;
+
 use App\Models\News;
 use App\Models\Image;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ class NewsController extends Controller
      */
     public function index()
     {
+        //
         return News::with('images')->paginate();
     }
 
@@ -37,11 +39,23 @@ class NewsController extends Controller
         $data =  $request->except('images');
         $news = News::create($data);
 
+        if (!$request->images) {
+            $request->offsetSet('images', []);
+        }
+
+        if (!is_array($request->images)) {
+            if (is_array(json_decode($request->images))) {
+                $request->offsetSet('images', json_decode($request->images));
+            } else {
+                $request->offsetSet('images', []);
+            }
+        }
+       // return $request;
         foreach ($request->images as $image) {
-           // $data = [];
+            $data = [];
             $data['images'] = $this->uploadImage($image);
-            
-            $news->images()->create($data);
+
+           $news->images()->create($data);
 
             // $data['reference_id'] = $news->id;
             // $data['reference_type'] = $news->getMorphClass();
@@ -51,7 +65,9 @@ class NewsController extends Controller
 
 
         return response()->json([
-            'message' => 'News Added Successfully'
+            'message' => 'News Added Successfully',
+            'news' => $news,
+            'code' => '201'
         ]);
     }
 
@@ -85,7 +101,7 @@ class NewsController extends Controller
         ]);
 
 
-        $data =  $request->except(['images','deleted_images']);
+        $data =  $request->except(['images', 'deleted_images']);
         $news->update($data);
 
         $old_image = $news->images;
@@ -94,24 +110,23 @@ class NewsController extends Controller
         // $new_image = $this->uploadImage($request);
 
         if ($request->deleted_images) {
-            foreach ($news->images()->whereIn('id',$request->deleted_images)->get() as $img) {
+            foreach ($news->images()->whereIn('id', $request->deleted_images)->get() as $img) {
                 $img->delete();
                 Storage::disk('public')->delete($img);
-
             }
-        }   
-        if($request->images){
-        foreach ($request->images as $image) {
-            $data = [];
-            $data['images'] = $this->uploadImage($image);
-
-            $news->images()->create($data);
-
-            // $data['reference_id'] = $news->id;
-            // $data['reference_type'] = $news->getMorphClass();
-            // Image::create($data);
         }
-    }
+        if ($request->images) {
+            foreach ($request->images as $image) {
+                $data = [];
+                $data['images'] = $this->uploadImage($image);
+
+                $news->images()->create($data);
+
+                // $data['reference_id'] = $news->id;
+                // $data['reference_type'] = $news->getMorphClass();
+                // Image::create($data);
+            }
+        }
         // if ($new_image) {
         //     $data = [];
         //     $data['images'] = $new_image;
@@ -131,7 +146,9 @@ class NewsController extends Controller
 
 
         return response()->json([
-            'message' => 'Updated'
+            'message' => 'Updated',
+            'news' => $news,
+            'code' => '201'
         ]);
     }
 
@@ -144,7 +161,7 @@ class NewsController extends Controller
     public function destroy(News $news)
     {
         //
-         $news->delete();
+        $news->delete();
         //$news->images()->delete();
 
         return response()->json([

@@ -30,10 +30,11 @@ class CourseController extends Controller
     public function store(Request $request)
     {
         $request->validate(Course::rules());
-        Course::create($request->all());
+        $course=Course::create($request->all());
 
         return response()->json([
-            'message' => 'Course created successfully'
+            'message' => 'Course created successfully',
+            'Course'=>$course
         ]);
     }
 

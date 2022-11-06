@@ -49,7 +49,8 @@ class TraineeController extends Controller
         Mail::to($trainee->email)->send(new Password($password));
 
         return response()->json([
-            'message' => 'Trainee created successfully'
+            'message' => 'Trainee created successfully',
+            'trainee'=>$trainee
         ]);
     }
 
